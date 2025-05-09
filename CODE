@@ -1,0 +1,33 @@
+# Geospatial Analysis of COVID-19 Vaccine using Kaggle dataset
+# Project Title: Mapping COVID-19 Vaccination Coverage using Geospatial Data
+
+import geopandas as gpd
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Importing the COVID Vaccine dataset
+df = pd.read_csv('Downloads/COVID_new.csv')
+#print(df.head())
+
+# Importing the Boundry Map file
+gdf = gpd.read_file('Downloads/india_map.zip')
+#gdf.head()
+
+# Removing all the null values
+df = df[df['population'] > 0]
+
+# Calculating percentage of dosage 1 coverage
+df['dose1_coverage_pct'] = (df['dose1']/df['population']) * 100
+
+# Sorting values in descending order
+df_sorted = df.sort_values('dose1_coverage_pct', ascending = False)
+
+# Plotting a bar chart between dosage coverage percentage and state 
+plt.figure(figsize = (15,8))
+plt.barh(df_sorted['state'], df_sorted['dose1_coverage_pct'], color = 'b')
+plt.xlabel('Dose 1 coverage (%)')
+plt.title('State-Wise Dose 1 Coverage')
+#plt.show()
+
+# Preparing csv file for QGIS merge
+df[['state', 'dose1_coverage_pct']].to_csv('Downloads/state_vaccination_coverage.csv', index = False)
